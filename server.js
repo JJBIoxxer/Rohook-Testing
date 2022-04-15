@@ -1,3 +1,5 @@
+if (process.env.ENVIRONMENT != "production") require("dotenv").config();
+
 const express = require("express");
 
 const app = express();
@@ -18,6 +20,8 @@ app.use("/api", apiRouter);
 app.all("*", (req, res, next) => { 
     next( new HttpError(`Requested URL ${req.path} not found!`, 404) );
 });
+
 app.use(errorHandler);
 
-app.listen(2000, () => console.log("Server Started"));
+const port = process.env.PORT || 2000;
+app.listen(port, () => console.log(`Listening for requests on port ${port}`));

@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require("axios").default;
 const router = require("express").Router();
 
 const rateLimiter = require("../middlewares/rateLimiter");
@@ -9,17 +9,21 @@ const baseUrl = "https://discord.com/api/webhooks"
 router.use(rateLimiter);
 
 router.get("/:id/:token", async (req, res, next) => {
-    const response = await axios.request({
-        method: "get",
-        url: `${baseUrl}/webhooks/${req.params.id}/${req.params.token}`
-    });
-    return res.json(response.data);
+    try {
+        const response = await axios({
+            method: req.method.toLowerCase(),
+            url: `${baseUrl}/${req.params.id}/${req.params.token}`
+        });
+        return res.json(response.data);
+    } catch (error) {
+        next( new HttpError("Bad Request", 400) );
+    }
 });
 
 router.post("/:id/:token", async (req, res, next) => {
     try {
         axios({
-            method: "post",
+            method: req.method.toLowerCase(),
             url: `${baseUrl}/${req.params.id}/${req.params.token}`,
             body: req.body
         });
